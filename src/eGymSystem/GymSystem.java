@@ -5,18 +5,20 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
 public class GymSystem {
 	
 	//this is the filepath for the serialisation file, it may need to be changed for other machines
-	private static final String PATH = "C:\\Users\\james\\eclipse-workspace\\eGymSystem\\src\\eGymSystem";
+	private static final String PATH = "C:\\Users\\seanm\\eclipse-workspace\\eGymSystem\\src\\eGymSystem";
 	
 	private static final Scanner S = new Scanner(System.in);
+	
+	private static final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 	
 	private List<Gym> arrayGym = Collections.synchronizedList(new ArrayList<Gym>());
 	
@@ -31,6 +33,8 @@ public class GymSystem {
 		arrayGym.get(0).addManager("Sean","_Sean");
 		arrayGym.get(1).addManager("James","_James");
 		arrayGym.get(2).addManager("Ben","_Ben");
+		arrayGym.get(0).addCustomer("Thanos","_Thanos", Membership.Student, format.parse("01-01-2023"));
+		arrayGym.get(0).addTrainer("Bob", "_Bob", EmploymentType.FullTime);
 		
 		deSerialize();
 	}
@@ -43,8 +47,7 @@ public class GymSystem {
 		gym = arrayGym.get(gymInt);
 		gym.logOn();
 		if(gym.getAuthenticate()) {
-			System.out.println("Poggers");
-			//mainMenu();
+			mainMenu();
 		}
 		else {
 			System.out.println("Access Denied.");
@@ -76,88 +79,39 @@ public class GymSystem {
 		S.close();
 	}
 	
-	/*public void mainMenu() throws Exception {
+	public void mainMenu() throws Exception {
 		String choice = "";
 		do {
 			System.out.println("\nWelcome to the Gym System!");
-			System.out.println("1 - View work schedule");
-			System.out.println("2 - View list of vehicles");
-			System.out.println("3 - Setup work schedule");
-			System.out.println("4 - Move vehicle");
-			System.out.println("5 - Add vehicle");
-			System.out.println("6 - Remove vehicle");
-			System.out.println("7 - Add driver");
-			System.out.println("8 - Log out");
+			System.out.println("1 - View gym classes");
+			System.out.println("2 - View list of personal trainers");
+			System.out.println("3 - View membership type and expiration date (Customers only)");
+			System.out.println("4 - View list of members (Managers only)");
+			System.out.println("5 - Add a new member (Managers only)");
+			System.out.println("6 - Remove a member (Managers only)");
+			System.out.println("7 - Add a new gym class (Trainers only)");
+			System.out.println("8 - Remove a gym class (Trainers only)");
+			System.out.println("9 - Log out");
 			System.out.print("Pick : ");
 
 			choice = S.nextLine();
 		
 			switch (choice) {
 				case "1" : {
-					depot.viewWorkSchedule();
+					gym.viewClasses();
 					break;
 				}
 				case "2":  {
-					depot.viewVehicles();
+					gym.viewTrainers();
 					break;
 				}
-				case "3" : {
-					depot.setupWorkSchedule();
-					break;
-				}
-				case "4" : {
-					if(depot.checkIfManager()) {
-						Vehicle selectedVehicle = depot.displayVehicleMenu();
-						System.out.println(arrayDepot.toString());
-						System.out.println("Select Depot to Move Vehicle (e.g. Liverpool = 1, Manchester = 2 etc.): ");
-						int depotChoice = Integer.valueOf(S.nextLine());
-						depotChoice-=1;
-						Depot selectedDepot = arrayDepot.get(depotChoice);
-						
-						System.out.println("Specify Move Date & Time for Vehicle [dd-mm-yyyy HH:MM] :");
-						String moveDate = S.nextLine();
-						SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-						Date moveDate1 = format.parse(moveDate);
-						System.out.println("Vehicle will be moved to " + selectedDepot + " at date: " + moveDate1);
-				
-						if(selectedVehicle instanceof Tanker) {
-							String regNo = ((Tanker) selectedVehicle).getRegNo();
-							arrayDepot.get(depotInt).getRemoveTanker(regNo);
-							TankerCheck.addToBufferTanker(selectedVehicle, selectedDepot, moveDate1);
-							depot.startTankerCheck();
-						}
-						else if(selectedVehicle instanceof Truck) {
-							String regNo = ((Truck) selectedVehicle).getRegNo();
-							arrayDepot.get(depotInt).getRemoveTruck(regNo);
-							TruckCheck.addToBufferTruck(selectedVehicle, selectedDepot, moveDate1);
-							depot.startTruckCheck();
-						}
-					}
-					else {
-						System.out.println("You need to be a manager to move a vehicle!");
-					}
-					break;
-				}
-				case "5" : {
-					depot.addVehicle();
-					System.out.println("Vehicle Added!");
-					break;
-				}
-				case "6" : {
-					depot.removeVehicle();
-					System.out.println("Vehicle Removed!");
-					break;
-				}
-				case "7" : {
-					depot.addNewDriver();
-					System.out.println("Driver Added!");
-					break;
+				case "3": {
+					gym.viewMembership();
 				}
 				
 			}
-		} while (!choice.equals("8"));
+		} while (!choice.equals("9"));
 	}
-	*/
 	
     public Gym getGym(String selectedGym) {
         for (Gym gym : arrayGym) {
@@ -179,7 +133,7 @@ public class GymSystem {
 			ois.close();
 		}
 		catch (Exception e) {
-			System.out.println(e.getMessage());
+			//System.out.println(e.getMessage());
 		}
 	}
 	
@@ -192,7 +146,7 @@ public class GymSystem {
 			oos.close();
 		}
 		catch (Exception e) {
-			System.out.println(e.getMessage());
+			//System.out.println(e.getMessage());
 		}
 	}
 

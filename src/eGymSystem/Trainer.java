@@ -8,5 +8,9 @@ public class Trainer extends User {
 		super(username, password);
 		this.employmentType = employmentType;
 	}
+	
+	public EmploymentType getEmploymentType() {
+		return employmentType;
+	}
 
 }
