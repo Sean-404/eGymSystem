@@ -30,10 +30,16 @@ public final class Gym implements Serializable {
 	}
 	
 	public void logOn() throws NumberFormatException, ParseException {
+		int userID = 0;
 		s = new Scanner(System.in);
 		System.out.println("Enter your User ID: ");
 		String userIDString = s.nextLine();
-		int userID = Integer.valueOf(userIDString);
+		try {
+			userID = Integer.valueOf(userIDString);
+		} catch(NumberFormatException e) {
+			System.out.println("User ID must be an integer!");
+			return;
+		}
 		System.out.println("Enter your username:");
 		String inputUsername = s.nextLine();
 		System.out.println("Enter your password:");
@@ -153,7 +159,6 @@ public final class Gym implements Serializable {
  		if(userAccount instanceof Manager) {
  			viewCustomers();
  			viewTrainers();
- 			
  			System.out.println("Select Member to Remove by User ID: ");
  			String userIDString = s.nextLine();
  			int userIDInput = Integer.valueOf(userIDString);
@@ -241,11 +246,27 @@ public final class Gym implements Serializable {
     	}
     }
     
+    public void viewCustomers() throws ParseException {
+    	if (userAccount instanceof Manager) {
+    		System.out.println("List of Customers:");
+    		for(int i = 0; i < arrayUsers.size(); i++) {  
+        		if(arrayUsers.get(i) instanceof Customer) {
+        			System.out.println("User ID: "+ arrayUsers.get(i).getUserID() + " | " +
+        			"Name: " + arrayUsers.get(i).getUserName() + " | " +
+        			"Membership Type: " + ((Customer) arrayUsers.get(i)).getMembershipType() + " | " +
+        			"Expiration Date: " + format.format(((Customer) arrayUsers.get(i)).getExpirationDate()));
+        		}
+        	}
+    	} else {
+    		System.out.println("This section is for managers only!");
+    	}
+    }
+    
     public void viewTrainers() {
     	System.out.println("List of Personal Trainers:");
     	for(int i = 0; i < arrayUsers.size(); i++) {  
     		if(arrayUsers.get(i) instanceof Trainer) {
-    			System.out.print("User ID: "+ arrayUsers.get(i).getUserID() + " | " +
+    			System.out.println("User ID: "+ arrayUsers.get(i).getUserID() + " | " +
             	"Name: " + arrayUsers.get(i).getUserName() + " | " +
             	"Employment Type: " + ((Trainer) arrayUsers.get(i)).getEmploymentType() + "\n");
     		}
@@ -263,22 +284,6 @@ public final class Gym implements Serializable {
             	"Class Trainer ID: " + arrayClasses.get(i).getClassTrainer().getUserID() + " | " +
             	"Class Trainer Name: " + arrayClasses.get(i).getClassTrainer().getUserName());
         	}
-    	}
-    }
-    
-    public void viewCustomers() throws ParseException {
-    	if (userAccount instanceof Manager) {
-    		System.out.println("List of Customers: ");
-    		for(int i = 0; i < arrayUsers.size(); i++) {  
-        		if(arrayUsers.get(i) instanceof Customer) {
-        			System.out.println("User ID: "+ arrayUsers.get(i).getUserID() + " | " +
-        			"Name: " + arrayUsers.get(i).getUserName() + " | " +
-        			"Membership Type: " + ((Customer) arrayUsers.get(i)).getMembershipType() + " | " +
-        			"Expiration Date: " + format.format(((Customer) arrayUsers.get(i)).getExpirationDate()));
-        		}
-        	}
-    	} else {
-    		System.out.println("This section is for managers only!");
     	}
     }
 	

@@ -46,9 +46,19 @@ public class GymSystem {
 	private void logOn() throws Exception {
 		System.out.println(arrayGym.toString());
 		System.out.println("Choose a Gym Location (e.g. Liverpool = 1, Manchester = 2 etc.): ");
-		gymInt = Integer.valueOf(S.nextLine());
+		try {
+			gymInt = Integer.valueOf(S.nextLine());
+		} catch (NumberFormatException e) {
+			System.out.println("Gym Location must be an integer!");
+			return;
+		}
 		gymInt -= 1;
-		gym = arrayGym.get(gymInt);
+		try {
+			gym = arrayGym.get(gymInt);
+		} catch (IndexOutOfBoundsException e) {
+			System.out.println("Gym Location out of bounds!");
+			return;
+		}
 		gym.logOn();
 		if(gym.getAuthenticate()) {
 			mainMenu();
@@ -65,7 +75,7 @@ public class GymSystem {
 			System.out.println("-- ENTRY MENU --");
 			System.out.println("1 - Login");
 			System.out.println("2 - Quit");
-			System.out.print("Pick : ");
+			System.out.print("Choose: ");
 
 			choice = S.nextLine().toUpperCase();
 
