@@ -1,4 +1,4 @@
-package eGymSystem;
+package Enums;
 
 public enum Membership {
 	

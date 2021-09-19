@@ -1,4 +1,4 @@
-package eGymSystem;
+package Sys;
 
 public class Entry {
 

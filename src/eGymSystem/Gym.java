@@ -3,11 +3,15 @@ package eGymSystem;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+
+import Enums.EmploymentType;
+import Enums.Membership;
 
 public final class Gym implements Serializable {
 	
@@ -16,6 +20,7 @@ public final class Gym implements Serializable {
 	private String gymName;
 	private boolean userAuthenticate;
 	public User userAccount;
+	public GymClasses gymClass;
 	private List<User> arrayUsers = Collections.synchronizedList(new ArrayList<User>());
 	private List<GymClasses> arrayClasses = Collections.synchronizedList(new ArrayList<GymClasses>());
 	
@@ -26,58 +31,190 @@ public final class Gym implements Serializable {
 	
 	public void logOn() throws NumberFormatException, ParseException {
 		s = new Scanner(System.in);
+		System.out.println("Enter your User ID: ");
+		String userIDString = s.nextLine();
+		int userID = Integer.valueOf(userIDString);
 		System.out.println("Enter your username:");
 		String inputUsername = s.nextLine();
 		System.out.println("Enter your password:");
 		String inputPassword = s.nextLine();
 		
-		userAuthenticate = authenticateUser(inputUsername, inputPassword);
+		userAuthenticate = authenticateUser(userID, inputUsername, inputPassword);
 		
 		if(userAuthenticate) {
 			System.out.println("Login credentials authenticated.");
 		} else {
 			System.out.println("Login credentials incorrect.");
 		}
-		
 	}
 	
-	public void addCustomer(String username, String password, Membership membership, Date expirationDate) {
-		arrayUsers.add(new Customer(username, password, membership,expirationDate));
+	public void addCustomer(int userID, String username, String password, Membership membership, Date expirationDate) {
+		arrayUsers.add(new Customer(userID, username, password, membership, expirationDate));
 	}
 	
-	public void addTrainer(String username, String password, EmploymentType employment) {
-		arrayUsers.add(new Trainer(username, password, employment));
+	public void addTrainer(int userID, String username, String password, EmploymentType employment) {
+		arrayUsers.add(new Trainer(userID, username, password, employment));
 	}
 	
-	public void addManager(String username, String password) {
-		arrayUsers.add(new Manager(username, password));
+	public void addManager(int userID, String username, String password) {
+		arrayUsers.add(new Manager(userID, username, password));
 	}
 	
 	public void addGymClass(String className, Date classDate, Trainer classTrainer) {
 		arrayClasses.add(new GymClasses(className, classDate, classTrainer));
 	}
 	
-    public User getUser(String userName) {
+	public void addNewGymClass() throws ParseException {
+		if(userAccount instanceof Trainer) {
+			System.out.println("Specify Gym class name: ");
+			String className = s.nextLine();
+			System.out.println("Specify Gym class date (dd-mm-yyyy): ");
+			String dateString = s.nextLine();
+			Date date = format.parse(dateString);
+			System.out.println("Specify Gym trainer ID: ");
+			String trainerName = s.nextLine();
+			int trainerID = Integer.valueOf(trainerName);
+			Trainer trainer = (Trainer) getUser(trainerID);
+			addGymClass(className, date, trainer);
+			System.out.println("Gym class added!");
+		} else {
+			System.out.println("This section is for trainers only!");
+		}
+	}
+	
+    public void addNewCustomer() throws ParseException {
+    	Membership membership = null;
+    	if (userAccount instanceof Manager) {
+    		System.out.println("Specify Customer's User ID: ");
+    		int customerID = s.nextInt();
+    		System.out.println("Specify Customer's Username: ");
+			String customerUsername = s.nextLine();
+			System.out.println("Specify Customer's Password: ");
+			String customerPassword = s.nextLine();
+			System.out.println("Specify Customer's Membership type (Monthly, FixedTerm, Student, OffPeak): ");
+			String customerMembership = s.nextLine();
+			try {
+				membership = Membership.valueOf(customerMembership);
+			} catch(IllegalArgumentException e) {
+				System.out.println("Membership input invalid");
+			}
+			System.out.println("Specify Customer's Membership length (months) :");
+			int membershipLength = s.nextInt();
+			LocalDate futureDate = LocalDate.now().plusMonths(membershipLength);
+			Date date = java.sql.Date.valueOf(futureDate);
+			String dateString = format.format(date);
+			date = format.parse(dateString);
+			addCustomer(customerID, customerUsername, customerPassword, membership, date);
+			System.out.println("Customer added!");
+		} else {
+			System.out.println("This section is for managers only!");
+		}
+    }
+    
+ 	public void removeUser() throws ParseException {
+ 		if(userAccount instanceof Manager) {
+ 			viewCustomers();
+ 			viewTrainers();
+ 			
+ 			System.out.println("Select Member to Remove by UserID :");
+ 			String userIDString = s.nextLine();
+ 			int userIDInput = Integer.valueOf(userIDString);
+ 			User selectedUser = getUser(userIDInput);
+ 			if(selectedUser instanceof Customer) {
+ 				removeCustomer(userIDInput);
+ 			}
+ 			if(selectedUser instanceof Trainer) {
+ 				removeTrainer(userIDInput);
+ 			}
+ 		} else {
+ 			System.out.println("This section is for managers only!");
+ 		}
+	}
+    
+    public void removeCustomer(int userID) throws ParseException {
+ 		for (int i = arrayUsers.size() - 1; i >=0; --i) {
+ 		    User customer = arrayUsers.get(i);
+ 		    if (customer.userID == (userID)) {
+ 		      arrayUsers.remove(i);
+ 		      System.out.println("Customer removed!");
+ 		      return;
+ 		    } else {   	
+ 		    	System.out.println("Customer does not exist. Return? (Y/N): ");
+ 		    	String input = s.nextLine();
+ 		    	if(input.equals("Y") || input.equals("y")) {
+ 		    		return;
+ 		    	} else {
+ 		    		removeUser();
+ 		    	}
+ 		    }
+ 		}
+ 	}
+    
+    public void removeTrainer(int userID) throws ParseException {
+ 		for (int i = arrayUsers.size() - 1; i >=0; --i) {
+ 		    User trainer = arrayUsers.get(i);
+ 		    if (trainer.userID == (userID)) {
+ 		      arrayUsers.remove(i);
+ 		      System.out.println("Trainer removed!");
+ 		      return;
+ 		    } else {   	
+ 		    	System.out.println("Trainer does not exist. Return? (Y/N): ");
+ 		    	String input = s.nextLine();
+ 		    	if(input.equals("Y") || input.equals("y")) {
+ 		    		return;
+ 		    	} else {
+ 		    		removeUser();
+ 		    	}
+ 		    }
+ 		}
+ 	}
+    
+    public void removeGymClass() throws ParseException {
+    	if(userAccount instanceof Trainer) {
+        	System.out.println("Specify Gym class name: ");
+        	String className = s.nextLine();
+        	System.out.println("Specify Gym class date (dd-mm-yyyy): ");
+        	String classDateString = s.nextLine();
+        	Date classDate = format.parse(classDateString);
+        	System.out.println("Specify Gym class trainer ID: ");
+        	String trainerName = s.nextLine();
+        	int trainerID = Integer.valueOf(trainerName);
+        	Trainer trainer = (Trainer) getUser(trainerID);
+        	getRemoveGymClass(className, classDate, trainer);
+    	} else {
+    		System.out.println("This section is for trainers only!");
+    	}
+    }
+    
+    public void getRemoveGymClass(String className, Date classDate, Trainer trainer) throws ParseException {
+    	for (int i = arrayClasses.size() - 1; i >=0; --i) {
+ 		    GymClasses gymClass = arrayClasses.get(i);
+ 		    if (gymClass.className.equals(className) && 
+ 		    		(gymClass.classDate.equals(classDate) && 
+ 		    		gymClass.classTrainer.equals(trainer))) {
+ 		      arrayClasses.remove(i);
+ 		      System.out.println("Gym Class removed!");
+ 		      return;
+ 		    } else {   	
+ 		    	System.out.println("Gym Class does not exist. Return? (Y/N): ");
+ 		    	String input = s.nextLine();
+ 		    	if(input.equals("Y") || input.equals("y")) {
+ 		    		return;
+ 		    	} else {
+ 		    		removeGymClass();
+ 		    	}
+ 		    }
+ 		}
+    }
+	
+    public User getUser(int userID) {
         for (User userAccount : arrayUsers) {
-            if ((userAccount.getUserName()).equals(userName)) {
+            if ((userAccount.getUserID()) == (userID)) {
                 return userAccount;
             }
         }
 
         return null;
-    }
-    
-    public void viewClasses() {
-    	System.out.println(arrayClasses.toString());
-    }
-    
-    public void viewTrainers() {
-    	System.out.println("List of Personal Trainers:");
-    	for(int i = 0; i < arrayUsers.size(); i++) {  
-    		if(arrayUsers.get(i) instanceof Trainer) {
-    			System.out.print(arrayUsers.get(i).getUserName() + "\n");
-    		}
-    	}
     }
     
     public void viewMembership() throws ParseException {
@@ -91,9 +228,46 @@ public final class Gym implements Serializable {
     		System.out.println("This section is for customers only!");
     	}
     }
+    
+    public void viewTrainers() {
+    	System.out.println("List of Personal Trainers:");
+    	for(int i = 0; i < arrayUsers.size(); i++) {  
+    		if(arrayUsers.get(i) instanceof Trainer) {
+    			System.out.print("User ID: "+ arrayUsers.get(i).getUserID() + " | " +
+            	"Name: " + arrayUsers.get(i).getUserName() + " | " +
+            	"Employment Type: " + ((Trainer) arrayUsers.get(i)).getEmploymentType() + "\n");
+    		}
+    	}
+    }
+    
+    public void viewClasses() throws ParseException {
+    	System.out.println("Gym Classes: ");
+    	for(int i = 0; i < arrayClasses.size(); i++) {
+        	System.out.println("Class Name: "+ arrayClasses.get(i).getClassName() + " | " +
+        	"Class Date: " + format.format(arrayClasses.get(i).getClassDate()) + " | " +
+        	"Class Trainer ID: " + arrayClasses.get(i).getClassTrainer().getUserID() + " | " +
+        	"Class Trainer Name: " + arrayClasses.get(i).getClassTrainer().getUserName());
+    	}
+    }
+    
+    public void viewCustomers() throws ParseException {
+    	if (userAccount instanceof Manager) {
+    		System.out.println("List of Customers: ");
+    		for(int i = 0; i < arrayUsers.size(); i++) {  
+        		if(arrayUsers.get(i) instanceof Customer) {
+        			System.out.println("User ID: "+ arrayUsers.get(i).getUserID() + " | " +
+        			"Name: " + arrayUsers.get(i).getUserName() + " | " +
+        			"Membership Type: " + ((Customer) arrayUsers.get(i)).getMembershipType() + " | " +
+        			"Expiration Date: " + format.format(((Customer) arrayUsers.get(i)).getExpirationDate()));
+        		}
+        	}
+    	} else {
+    		System.out.println("This section is for managers only!");
+    	}
+    }
 	
-    public boolean authenticateUser(String inputUsername, String inputPassword) {
-        userAccount = getUser(inputUsername);
+    public boolean authenticateUser(int userID, String inputUsername, String inputPassword) {
+        userAccount = getUser(userID);
 
         if (userAccount != null) {
             return userAccount.checkPassword(inputPassword);

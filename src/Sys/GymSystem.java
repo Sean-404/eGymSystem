@@ -1,4 +1,4 @@
-package eGymSystem;
+package Sys;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+
+import Enums.EmploymentType;
+import Enums.Membership;
+import eGymSystem.Gym;
 
 public class GymSystem {
 	
@@ -30,11 +34,11 @@ public class GymSystem {
 		arrayGym.add(new Gym("Liverpool"));
 		arrayGym.add(new Gym("Manchester"));
 		arrayGym.add(new Gym("Leeds"));
-		arrayGym.get(0).addManager("Sean","_Sean");
-		arrayGym.get(1).addManager("James","_James");
-		arrayGym.get(2).addManager("Ben","_Ben");
-		arrayGym.get(0).addCustomer("Thanos","_Thanos", Membership.Student, format.parse("01-01-2023"));
-		arrayGym.get(0).addTrainer("Bob", "_Bob", EmploymentType.FullTime);
+		arrayGym.get(0).addManager(1234, "Sean","_Sean");
+		arrayGym.get(1).addManager(1111, "James","_James");
+		arrayGym.get(2).addManager(0000, "Ben","_Ben");
+		arrayGym.get(0).addCustomer(2222, "Thanos","_Thanos", Membership.Student, format.parse("01-01-2023"));
+		arrayGym.get(0).addTrainer(3333, "Bob", "_Bob", EmploymentType.FullTime);
 		
 		deSerialize();
 	}
@@ -86,9 +90,9 @@ public class GymSystem {
 			System.out.println("1 - View gym classes");
 			System.out.println("2 - View list of personal trainers");
 			System.out.println("3 - View membership type and expiration date (Customers only)");
-			System.out.println("4 - View list of members (Managers only)");
+			System.out.println("4 - View list of customers (Managers only)");
 			System.out.println("5 - Add a new member (Managers only)");
-			System.out.println("6 - Remove a member (Managers only)");
+			System.out.println("6 - Remove a customer/trainer (Managers only)");
 			System.out.println("7 - Add a new gym class (Trainers only)");
 			System.out.println("8 - Remove a gym class (Trainers only)");
 			System.out.println("9 - Log out");
@@ -107,8 +111,27 @@ public class GymSystem {
 				}
 				case "3": {
 					gym.viewMembership();
+					break;
 				}
-				
+				case "4": {
+					gym.viewCustomers();
+					break;
+				}
+				case "5": {
+					gym.addNewCustomer();
+					break;
+				}
+				case "6": {
+					gym.removeUser();
+					break;
+				}
+				case "7": {
+					gym.addNewGymClass();
+					break;
+				}
+				case "8": {
+					gym.removeGymClass();
+				}
 			}
 		} while (!choice.equals("9"));
 	}

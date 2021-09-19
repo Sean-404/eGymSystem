@@ -2,10 +2,12 @@ package eGymSystem;
 
 public class User {
 	
+	protected int userID;
 	protected String username; //These attributes are protected so that only this class and any sub-classes can use them
 	protected String password;
 	
-	public User(String username, String password) {
+	public User(int userID, String username, String password) {
+		this.userID = userID;
 		this.username = username;
 		this.password = password;
 	}
@@ -16,6 +18,10 @@ public class User {
 		} else {
 			return false;
 		}
+	}
+	
+	public int getUserID() {
+		return userID;
 	}
 	
 	public String getUserName() {
