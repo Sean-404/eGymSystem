@@ -91,11 +91,12 @@ public class GymSystem {
 			System.out.println("2 - View list of personal trainers");
 			System.out.println("3 - View membership type and expiration date (Customers only)");
 			System.out.println("4 - View list of customers (Managers only)");
-			System.out.println("5 - Add a new member (Managers only)");
-			System.out.println("6 - Remove a customer/trainer (Managers only)");
-			System.out.println("7 - Add a new gym class (Trainers only)");
-			System.out.println("8 - Remove a gym class (Trainers only)");
-			System.out.println("9 - Log out");
+			System.out.println("5 - Add a new customer (Managers only)");
+			System.out.println("6 - Add a new trainer (Managers only)");
+			System.out.println("7 - Remove a customer/trainer (Managers only)");
+			System.out.println("8 - Add a new gym class (Trainers only)");
+			System.out.println("9 - Remove a gym class (Trainers only)");
+			System.out.println("10 - Log out");
 			System.out.print("Pick : ");
 
 			choice = S.nextLine();
@@ -122,18 +123,23 @@ public class GymSystem {
 					break;
 				}
 				case "6": {
-					gym.removeUser();
+					gym.addNewTrainer();
 					break;
 				}
 				case "7": {
-					gym.addNewGymClass();
+					gym.removeUser();
 					break;
 				}
 				case "8": {
+					gym.addNewGymClass();
+					break;
+				}
+				case "9": {
 					gym.removeGymClass();
+					break;
 				}
 			}
-		} while (!choice.equals("9"));
+		} while (!choice.equals("10"));
 	}
 	
     public Gym getGym(String selectedGym) {

@@ -86,7 +86,14 @@ public final class Gym implements Serializable {
     	Membership membership = null;
     	if (userAccount instanceof Manager) {
     		System.out.println("Specify Customer's User ID: ");
-    		int customerID = s.nextInt();
+    		String IDString = s.nextLine();
+    		int customerID = Integer.valueOf(IDString);
+			for(int i = 0; i < arrayUsers.size(); i++) {
+				if(arrayUsers.get(i).getUserID() == (customerID)) {
+					System.out.println("User ID already exists!");
+					return;
+				}
+			}
     		System.out.println("Specify Customer's Username: ");
 			String customerUsername = s.nextLine();
 			System.out.println("Specify Customer's Password: ");
@@ -98,12 +105,13 @@ public final class Gym implements Serializable {
 			} catch(IllegalArgumentException e) {
 				System.out.println("Membership input invalid");
 			}
-			System.out.println("Specify Customer's Membership length (months) :");
+			System.out.println("Specify Customer's Membership length (months): ");
 			int membershipLength = s.nextInt();
 			LocalDate futureDate = LocalDate.now().plusMonths(membershipLength);
 			Date date = java.sql.Date.valueOf(futureDate);
 			String dateString = format.format(date);
 			date = format.parse(dateString);
+			
 			addCustomer(customerID, customerUsername, customerPassword, membership, date);
 			System.out.println("Customer added!");
 		} else {
@@ -111,20 +119,52 @@ public final class Gym implements Serializable {
 		}
     }
     
+    public void addNewTrainer() {
+    	EmploymentType employmentType = null;
+    	if(userAccount instanceof Manager) {
+    		System.out.println("Specify Trainer's User ID: ");
+    		String IDString = s.nextLine();
+    		int trainerID = Integer.valueOf(IDString);
+			for(int i = 0; i < arrayUsers.size(); i++) {
+				if(arrayUsers.get(i).getUserID() == (trainerID)) {
+					System.out.println("User ID already exists!");
+					return;
+				}
+			}
+    		System.out.println("Specify Trainer's Username: ");
+			String trainerUsername = s.nextLine();
+			System.out.println("Specify Trainer's Password: ");
+			String trainerPassword = s.nextLine();
+			System.out.println("Specify Trainer's Employment Type (PartTime, FullTime, Temporary): ");
+			String trainerEmployment = s.nextLine();
+			try {
+				employmentType = EmploymentType.valueOf(trainerEmployment);
+			} catch(IllegalArgumentException e) {
+				System.out.println("Employment Type input invalid");
+			}
+			addTrainer(trainerID, trainerUsername, trainerPassword, employmentType);
+			System.out.println("Trainer added!");
+    	} else {
+    		System.out.println("This section is for managers only!");
+    	}
+    }
+    
  	public void removeUser() throws ParseException {
  		if(userAccount instanceof Manager) {
  			viewCustomers();
  			viewTrainers();
  			
- 			System.out.println("Select Member to Remove by UserID :");
+ 			System.out.println("Select Member to Remove by User ID: ");
  			String userIDString = s.nextLine();
  			int userIDInput = Integer.valueOf(userIDString);
  			User selectedUser = getUser(userIDInput);
  			if(selectedUser instanceof Customer) {
  				removeCustomer(userIDInput);
  			}
- 			if(selectedUser instanceof Trainer) {
+ 			else if(selectedUser instanceof Trainer) {
  				removeTrainer(userIDInput);
+ 			} else {
+ 				System.out.println("Customer/Trainer does not exist.");
  			}
  		} else {
  			System.out.println("This section is for managers only!");
@@ -132,41 +172,13 @@ public final class Gym implements Serializable {
 	}
     
     public void removeCustomer(int userID) throws ParseException {
- 		for (int i = arrayUsers.size() - 1; i >=0; --i) {
- 		    User customer = arrayUsers.get(i);
- 		    if (customer.userID == (userID)) {
- 		      arrayUsers.remove(i);
- 		      System.out.println("Customer removed!");
- 		      return;
- 		    } else {   	
- 		    	System.out.println("Customer does not exist. Return? (Y/N): ");
- 		    	String input = s.nextLine();
- 		    	if(input.equals("Y") || input.equals("y")) {
- 		    		return;
- 		    	} else {
- 		    		removeUser();
- 		    	}
- 		    }
- 		}
+    	arrayUsers.removeIf(e -> e.getUserID() == (userID));
+    	System.out.println("Customer removed!");
  	}
     
     public void removeTrainer(int userID) throws ParseException {
- 		for (int i = arrayUsers.size() - 1; i >=0; --i) {
- 		    User trainer = arrayUsers.get(i);
- 		    if (trainer.userID == (userID)) {
- 		      arrayUsers.remove(i);
- 		      System.out.println("Trainer removed!");
- 		      return;
- 		    } else {   	
- 		    	System.out.println("Trainer does not exist. Return? (Y/N): ");
- 		    	String input = s.nextLine();
- 		    	if(input.equals("Y") || input.equals("y")) {
- 		    		return;
- 		    	} else {
- 		    		removeUser();
- 		    	}
- 		    }
- 		}
+    	arrayUsers.removeIf(e -> e.getUserID() == (userID));
+    	System.out.println("Trainer removed!");
  	}
     
     public void removeGymClass() throws ParseException {
@@ -241,12 +253,16 @@ public final class Gym implements Serializable {
     }
     
     public void viewClasses() throws ParseException {
-    	System.out.println("Gym Classes: ");
-    	for(int i = 0; i < arrayClasses.size(); i++) {
-        	System.out.println("Class Name: "+ arrayClasses.get(i).getClassName() + " | " +
-        	"Class Date: " + format.format(arrayClasses.get(i).getClassDate()) + " | " +
-        	"Class Trainer ID: " + arrayClasses.get(i).getClassTrainer().getUserID() + " | " +
-        	"Class Trainer Name: " + arrayClasses.get(i).getClassTrainer().getUserName());
+    	if(arrayClasses.isEmpty()) {
+    		System.out.println("No classes found!");
+    	} else {
+        	System.out.println("Gym Classes: ");
+        	for(int i = 0; i < arrayClasses.size(); i++) {
+            	System.out.println("Class Name: "+ arrayClasses.get(i).getClassName() + " | " +
+            	"Class Date: " + format.format(arrayClasses.get(i).getClassDate()) + " | " +
+            	"Class Trainer ID: " + arrayClasses.get(i).getClassTrainer().getUserID() + " | " +
+            	"Class Trainer Name: " + arrayClasses.get(i).getClassTrainer().getUserName());
+        	}
     	}
     }
     
